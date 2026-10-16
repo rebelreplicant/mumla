@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Flic 2/Duo Push-to-Talk Settings -->
+<androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:key="flic_settings">
+
+    <PreferenceCategory
+        app:title="@string/flic_category"
+        app:iconSpaceReserved="false">
+
+        <ListPreference
+            app:key="flic_active_device"
+            app:title="@string/flic_active_device_title"
+            app:summary="@string/flic_active_device_summary"
+            app:entries="@array/flic_active_device_entries"
+            app:entryValues="@array/flic_active_device_values"
+            app:defaultValue="@string/flic_active_device_default"
+            app:iconSpaceReserved="false" />
+
+        <ListPreference
+            app:key="flic_duo_input"
+            app:title="@string/flic_duo_input_title"
+            app:summary="@string/flic_duo_input_summary"
+            app:entries="@array/flic_duo_input_entries"
+            app:entryValues="@array/flic_duo_input_values"
+            app:defaultValue="@string/flic_duo_input_default"
+            app:iconSpaceReserved="false"
+            app:dependency="flic_active_device" />
+
+        <Preference
+            app:key="flic_unpair_button"
+            app:title="@string/flic_unpair_button_title"
+            app:summary="@string/flic_unpair_button_summary"
+            app:iconSpaceReserved="false"
+            app:dependency="flic_active_device" />
+
+    </PreferenceCategory>
+
+</androidx.preference.PreferenceScreen>

@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 
 import se.lublin.humla.Constants;
+import se.lublin.mumla.flic.FlicPttController;
 
 /**
  * Singleton settings class for universal access to the app's preferences.
@@ -158,6 +159,15 @@ public class Settings {
 
     public static final String PREF_NEWS_SHOWN_VERSIONS = "newsShownVersions";
 
+    /**
+     * Flic 2/Duo PTT controller preferences
+     * @see se.lublin.mumla.flic.FlicPttController
+     */
+    public static final String PREF_FLIC_ACTIVE_DEVICE = FlicPttController.PREF_ACTIVE_DEVICE;
+    public static final String PREF_FLIC_DUO_INPUT = FlicPttController.PREF_DUO_INPUT;
+    public static final int DEFAULT_FIC_ACTIVE_DEVICE = FlicPttController.ACTIVE_DEVICE_NONE;
+    public static final int DEFAULT_FIC_DUO_INPUT = FlicPttController.DUO_INPUT_LEFT;
+
     static {
         ARRAY_INPUT_METHODS = new HashSet<String>();
         ARRAY_INPUT_METHODS.add(ARRAY_INPUT_METHOD_VOICE);
@@ -170,7 +180,6 @@ public class Settings {
     public static Settings getInstance(Context context) {
         return new Settings(context);
     }
-
     private Settings(Context ctx) {
         preferences = PreferenceManager.getDefaultSharedPreferences(ctx);
     }
@@ -415,4 +424,18 @@ public class Settings {
         preferences.edit().putStringSet(PREF_NEWS_SHOWN_VERSIONS, new HashSet<>()).apply();
     }
 
+    /**
+     * Flic device management
+     */
+    public int getFlicActiveDevice() {
+        return Integer.parseInt(preferences.getString(PREF_FLIC_ACTIVE_DEVICE, "0"));
+    }
+
+    public void setFlicActiveDevice(int device) {
+        preferences.edit().putInt(PREF_FLIC_ACTIVE_DEVICE, device).apply();
+    }
+
+    public int getFlicDuoInput() {
+        return Integer.parseInt(preferences.getString(PREF_FLIC_DUO_INPUT, "0"));
+    }
 }

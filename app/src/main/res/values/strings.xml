@@ -238,4 +238,44 @@
 
     <!-- Used only by flavor "foss" -->
     <string name="donate_foss">Donate</string>
+
+    <!-- Flic 2/Duo PTT Settings -->
+    <string name="flic">Flic PTT</string>
+    <string name="flic_category">Flic 2/Duo Push-to-Talk</string>
+    <string name="flic_active_device_title">Active Device</string>
+    <string name="flic_active_device_summary">Currently selected: %1$s</string>
+    <string name="flic_duo_input_title">Duo Input</string>
+    <string name="flic_duo_input_summary">Which button on Duo controls PTT</string>
+    <string name="flic_unpair_button_title">Unpair Device</string>
+    <string name="flic_unpair_button_summary">Remove the currently paired Flic device</string>
+    <string name="flic_unpair_no_device">No Device Paired</string>
+    <string name="flic_unpair_no_device_message">No Flic device is currently paired.</string>
+    <string name="flic_unpair_confirm_title">Unpair Device</string>
+    <string name="flic_unpair_confirm_message">Are you sure you want to unpair device %s?</string>
+    <string name="flic_device_none">None</string>
+    <string name="flic_device_flic2">Flic 2</string>
+    <string name="flic_device_flicduo">Flic Duo</string>
+
+    <!-- Flic device entries for ListPreference -->
+    <string-array name="flic_active_device_entries">
+        <item>None</item>
+        <item>Flic 2</item>
+        <item>Flic Duo</item>
+    </string-array>
+    <string-array name="flic_active_device_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string name="flic_active_device_default">0</string>
+
+    <string-array name="flic_duo_input_entries">
+        <item>Left Button</item>
+        <item>Right Button</item>
+    </string-array>
+    <string-array name="flic_duo_input_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+    <string name="flic_duo_input_default">0</string>
 </resources>

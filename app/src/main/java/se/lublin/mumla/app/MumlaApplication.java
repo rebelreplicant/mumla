@@ -8,18 +8,31 @@ import static se.lublin.mumla.Settings.PREF_THEME;
 
 import android.app.Application;
 import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceManager;
 
+import io.flic.flic2libandroid.Flic2Manager;
+import se.lublin.mumla.flic.FlicPttController;
+
 public class MumlaApplication extends Application implements SharedPreferences.OnSharedPreferenceChangeListener {
+    private Flic2Manager mFlicManager;
+    private FlicPttController mFlicController;
+
     @Override
     public void onCreate() {
         super.onCreate();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         applyTheme(preferences);
         preferences.registerOnSharedPreferenceChangeListener(this);
+
+        // Initialize Flic manager
+        mFlicManager = Flic2Manager.initAndGetInstance(this, new Handler(Looper.getMainLooper()));
+        mFlicController = new FlicPttController(mFlicManager, preferences);
+        mFlicController.initialize();
     }
 
     @Override
@@ -57,5 +70,13 @@ public class MumlaApplication extends Application implements SharedPreferences.O
                 preferences.edit().putString(PREF_THEME, "system").apply();
                 break;
         }
+    }
+
+    public Flic2Manager getFlicManager() {
+        return mFlicManager;
+    }
+
+    public FlicPttController getFlicController() {
+        return mFlicController;
     }
 }

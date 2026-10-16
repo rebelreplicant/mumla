@@ -51,8 +51,10 @@ import se.lublin.humla.model.Message;
 import se.lublin.humla.model.TalkState;
 import se.lublin.humla.util.HumlaException;
 import se.lublin.humla.util.HumlaObserver;
+import se.lublin.mumla.app.MumlaApplication;
 import se.lublin.mumla.R;
 import se.lublin.mumla.Settings;
+import se.lublin.mumla.flic.FlicPttController;
 import se.lublin.mumla.service.ipc.TalkBroadcastReceiver;
 import se.lublin.mumla.util.HtmlUtils;
 
@@ -115,6 +117,8 @@ public class MumlaService extends HumlaService implements
     };
 
     private BroadcastReceiver mTalkReceiver;
+
+    private FlicPttController mFlicController;
 
     private HumlaObserver mObserver = new HumlaObserver() {
         @Override
@@ -316,6 +320,10 @@ public class MumlaService extends HumlaService implements
             mTTS = new TextToSpeech(this, mTTSInitListener);
 
         mTalkReceiver = new TalkBroadcastReceiver(this);
+
+        // Initialize Flic controller
+        mFlicController = ((MumlaApplication) getApplication()).getFlicController();
+        mFlicController.setServiceCallback(new FlicServiceCallback());
     }
 
     @Override
@@ -346,6 +354,13 @@ public class MumlaService extends HumlaService implements
         if(mTTS != null) mTTS.shutdown();
         mMessageLog = null;
         mMessageNotification.dismiss();
+
+        // Disconnect Flic controller
+        if (mFlicController != null) {
+            mFlicController.disconnectAll();
+            mFlicController.setServiceCallback(null);
+        }
+
         super.onDestroy();
     }
 
@@ -479,6 +494,14 @@ public class MumlaService extends HumlaService implements
             case Settings.PREF_DISABLE_OPUS:
                 // These are settings we flag as 'requiring reconnect'.
                 requiresReconnect = true;
+                break;
+            case FlicPttController.PREF_ACTIVE_DEVICE:
+                // Reconnect active Flic device when preference changes
+                int activeDevice = mSettings.getFlicActiveDevice();
+                mFlicController.setActiveDevice(activeDevice);
+                break;
+            case FlicPttController.PREF_DUO_INPUT:
+                // Duo input change - no action needed, handled by Flic controller
                 break;
         }
         if (changedExtras.size() > 0) {
@@ -687,5 +710,43 @@ public class MumlaService extends HumlaService implements
 
         mMessageLog.add(new IChatMessage.TextMessage(msg));
         return msg;
+    }
+
+    /**
+     * FlicServiceCallback - Callback from FlicPttController to service methods.
+     */
+    private class FlicServiceCallback implements FlicPttController.ServiceCallback {
+        @Override
+        public void onTalkKeyDown() {
+            MumlaService.this.onTalkKeyDown();
+        }
+
+        @Override
+        public void onTalkKeyUp() {
+            MumlaService.this.onTalkKeyUp();
+        }
+
+        @Override
+        public void onPttRelease() {
+            // Release PTT when button is released or device disconnects
+            if (isTalking()) {
+                setTalkingState(false);
+            }
+        }
+
+        @Override
+        public boolean isConnected() {
+            return isConnectionEstablished();
+        }
+
+        @Override
+        public String getInputMethod() {
+            return mSettings.getInputMethod();
+        }
+
+        @Override
+        public boolean isPushToTalkMode() {
+            return Settings.ARRAY_INPUT_METHOD_PTT.equals(mSettings.getInputMethod());
+        }
     }
 }

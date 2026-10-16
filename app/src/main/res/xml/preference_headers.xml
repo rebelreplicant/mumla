@@ -17,6 +17,10 @@
         app:title="@string/appearance"
         app:fragment="se.lublin.mumla.preference.AppearanceSettingsFragment"
         app:iconSpaceReserved="false" />
+    <Preference app:key="flic_settings"
+        app:title="@string/flic"
+        app:fragment="se.lublin.mumla.preference.FlicSettingsFragment"
+        app:iconSpaceReserved="false" />
     <Preference app:key="about_settings"
         app:title="@string/about"
         app:fragment="se.lublin.mumla.preference.AboutSettingsFragment"
