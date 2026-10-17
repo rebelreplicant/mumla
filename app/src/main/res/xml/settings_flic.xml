@@ -33,6 +33,12 @@
             app:iconSpaceReserved="false"
             app:dependency="flic_active_device" />
 
+        <Preference
+            app:key="flic_pair_button"
+            app:title="@string/flic_pair_button_title"
+            app:summary="@string/flic_pair_button_summary"
+            app:iconSpaceReserved="false" />
+
     </PreferenceCategory>
 
 </androidx.preference.PreferenceScreen>

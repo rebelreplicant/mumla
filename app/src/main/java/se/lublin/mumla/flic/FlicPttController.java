@@ -32,6 +32,7 @@ import java.util.Map;
 import io.flic.flic2libandroid.Flic2Button;
 import io.flic.flic2libandroid.Flic2ButtonListener;
 import io.flic.flic2libandroid.Flic2Manager;
+import io.flic.flic2libandroid.Flic2ScanCallback;
 
 /**
  * Controller for Flic 2 and Flic Duo buttons to provide push-to-talk functionality.
@@ -147,6 +148,48 @@ public class FlicPttController {
         public void onDisconnect(Flic2Button button) {
             Log.d(TAG, "Button disconnected: " + button.getBdAddr());
             handleDisconnect(button);
+        }
+    };
+
+    private final Flic2ScanCallback mScanCallback = new Flic2ScanCallback() {
+        @Override
+        public void onDiscovered(String bdAddr) {
+            Log.d(TAG, "Discovered button: " + bdAddr);
+            if (mScanStateCallback != null) {
+                mScanStateCallback.onButtonDiscovered(bdAddr);
+            }
+        }
+
+        @Override
+        public void onDiscoveredAlreadyPairedButton(Flic2Button button) {
+            Log.d(TAG, "Discovered already paired button: " + button.getBdAddr());
+            String bdAddr = button.getBdAddr();
+            mPairedButtons.put(bdAddr, button);
+            if (mScanStateCallback != null) {
+                mScanStateCallback.onButtonFound(bdAddr, button.getName());
+            }
+        }
+
+        @Override
+        public void onConnected() {
+            Log.d(TAG, "Scan connected");
+        }
+
+        @Override
+        public void onComplete(int result, int subCode, Flic2Button button) {
+            Log.d(TAG, "Scan complete: result=" + result + ", subCode=" + subCode);
+            if (result == Flic2ScanCallback.RESULT_SUCCESS) {
+                String bdAddr = button.getBdAddr();
+                mPairedButtons.put(bdAddr, button);
+                if (mScanStateCallback != null) {
+                    mScanStateCallback.onScanSuccess(bdAddr, button.getName());
+                }
+            } else {
+                if (mScanStateCallback != null) {
+                    mScanStateCallback.onScanError("Scan failed: result=" + result + ", subCode=" + subCode);
+                }
+            }
+            stopScan();
         }
     };
 
@@ -426,5 +469,58 @@ public class FlicPttController {
         if (mFlicDuoButton != null && mFlicDuoButton.getBdAddr().equals(bdAddr)) {
             mFlicDuoButton = null;
         }
+    }
+
+    /**
+     * Callback interface for scan state updates.
+     */
+    public interface ScanStateCallback {
+        void onButtonDiscovered(String bdAddr);
+        void onButtonFound(String bdAddr, String name);
+        void onScanSuccess(String bdAddr, String name);
+        void onScanError(String error);
+    }
+
+    private @Nullable ScanStateCallback mScanStateCallback;
+
+    public void setScanStateCallback(ScanStateCallback callback) {
+        mScanStateCallback = callback;
+    }
+
+    /**
+     * Start scanning for Flic buttons.
+     * @return true if scan started successfully, false otherwise.
+     */
+    @MainThread
+    public boolean startScan() {
+        Log.d(TAG, "Starting Flic button scan");
+        mManager.startScan(mScanCallback);
+        return true;
+    }
+
+    /**
+     * Stop scanning for Flic buttons.
+     */
+    @MainThread
+    public void stopScan() {
+        Log.d(TAG, "Stopping Flic button scan");
+        mManager.stopScan();
+    }
+
+    /**
+     * Get a button by its MAC address.
+     * Note: getButtons() returns a Map<Integer, Flic2Button> with button ID as key.
+     * @param bdAddr MAC address of the button
+     * @return the Flic2Button or null if not found
+     */
+    @Nullable
+    @MainThread
+    public Flic2Button getButton(String bdAddr) {
+        for (Flic2Button button : mManager.getButtons()) {
+            if (bdAddr.equals(button.getBdAddr())) {
+                return button;
+            }
+        }
+        return null;
     }
 }
